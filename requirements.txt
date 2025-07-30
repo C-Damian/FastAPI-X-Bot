@@ -1,0 +1,34 @@
+# Lightweight version - uses API calls instead of local models
+
+# FastAPI and server
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# Database
+psycopg2-binary>=2.9.9
+sqlalchemy>=2.0.36
+
+# Twitter integration
+tweepy>=4.14.0
+
+# AI via API calls (much lighter)
+openai>=1.54.0
+# OR just use requests for Hugging Face API
+
+# Image generation
+Pillow>=11.0.0
+
+# Environment and config
+python-dotenv>=1.0.1
+
+# Async support
+httpx>=0.28.0
+
+# Validation
+pydantic>=2.10.0
+
+# Scheduling
+schedule>=1.2.2
+
+# Logging
+structlog>=24.5.0
