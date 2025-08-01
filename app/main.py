@@ -29,9 +29,17 @@ class TipResponse(BaseModel):
     class Config:
         from_attributes = True
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+class HealthCheckResponse(BaseModel):
+    status: int
+    message: str
+
+
+@app.get("/", response_model=HealthCheckResponse)
+def health_check():
+    try: 
+        return HealthCheckResponse(status=200, message="Hey there, I'm up and running!")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
 @app.get("/API/get_random_tip")
 def get_tip(db: Session = Depends(get_db)):
