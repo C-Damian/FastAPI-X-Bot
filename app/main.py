@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from db import get_db, Tip
+from db import get_db, Tip, Post_History
 from sqlalchemy import func
 import random
 from pydantic import BaseModel
@@ -10,6 +10,7 @@ app = FastAPI()
 
 # Pydantic models for request/response
 class TipCreate(BaseModel):
+    id: Optional[int] = None
     category_id: int
     title: str
     content: str
@@ -25,6 +26,8 @@ class TipResponse(BaseModel):
     code_example: Optional[str]
     hashtags: Optional[str]
     is_ai_generated: bool
+    created_at: datetime.datetime
+    last_posted: datetime.datetime
 
     class Config:
         from_attributes = True
@@ -43,7 +46,31 @@ def health_check():
 
 @app.get("/API/get_random_tip")
 def get_tip(db: Session = Depends(get_db)):
-    tip = db.query(Tip).order_by(func.random()).first()
+    import datetime
+    import random
+
+    # 1 - Determining what day it is
+    weekday = datetime.datetime.now().weekday()
+    category_id = weekday + 1
+
+    # 2 - Getting all tip IDs with today category, based on day number(M=1,T=2, W=3...)
+    tip_ids = db.query(Tip.id).filter(Tip.category_id == category_id).all()
+    tip_ids = [t[0] for t in tip_ids]
+
+    if not tip_ids:
+        return {"message": "No tips found for this category"}
+    
+    # 3 - Checking for tips already posted
+    posted_ids = db.query(Post_History.tip_id).filter(Post_History.tip_id.in_(tip_ids)).all()
+    posted_ids = {p[0] for p in posted_ids}
+
+    # 4 - filter unposted tips
+    unposted_ids = list(set(tip_ids) - posted_ids)
+    if not unposted_ids:
+        return {"message": "All tips in today's category have been posted"}
+    
+    
+
     if not tip:
         return {"message": "No tip found"}
     return {

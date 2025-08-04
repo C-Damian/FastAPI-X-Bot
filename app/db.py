@@ -35,6 +35,20 @@ class Tip(Base):
 
     # Relationship
     category = relationship("Category", back_populates="tips")
+    post_history = relationship("Post_History", back_populates="tip")
+    
+class Post_History(Base):
+    __tablename__ = "post_history"
+
+    id = Column(Integer, primary_key=True, index=True)
+    tip_id = Column(Integer, ForeignKey("tips.id"))
+    posted_at = Column(TIMESTAMP)
+    platform = Column(String(200))
+    post_id = Column(String(200))
+    engagement_count = Column(Integer)
+
+    # Relationship
+    tip = relationship("Tip", back_populates="post_history")
 
 def get_db():
     db = SessionLocal()
