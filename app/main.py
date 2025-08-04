@@ -5,6 +5,7 @@ from sqlalchemy import func
 import random
 from pydantic import BaseModel
 from typing import Optional
+from datetime import datetime
 
 app = FastAPI()
 
@@ -26,8 +27,8 @@ class TipResponse(BaseModel):
     code_example: Optional[str]
     hashtags: Optional[str]
     is_ai_generated: bool
-    created_at: datetime.datetime
-    last_posted: datetime.datetime
+    created_at: datetime
+    last_posted: Optional[datetime] = None
 
     class Config:
         from_attributes = True
@@ -46,41 +47,52 @@ def health_check():
 
 @app.get("/API/get_random_tip")
 def get_tip(db: Session = Depends(get_db)):
-    import datetime
-    import random
-
-    # 1 - Determining what day it is
-    weekday = datetime.datetime.now().weekday()
+    # Determining what day it is
+    weekday = datetime.utcnow().weekday()
     category_id = weekday + 1
 
-    # 2 - Getting all tip IDs with today category, based on day number(M=1,T=2, W=3...)
+    # Getting all tip IDs with today category, based on day number(M=1,T=2, W=3...)
     tip_ids = db.query(Tip.id).filter(Tip.category_id == category_id).all()
     tip_ids = [t[0] for t in tip_ids]
 
     if not tip_ids:
         return {"message": "No tips found for this category"}
     
-    # 3 - Checking for tips already posted
+    # Checking for tips already posted
     posted_ids = db.query(Post_History.tip_id).filter(Post_History.tip_id.in_(tip_ids)).all()
     posted_ids = {p[0] for p in posted_ids}
 
-    # 4 - filter unposted tips
+    # Filter unposted tips
     unposted_ids = list(set(tip_ids) - posted_ids)
     if not unposted_ids:
         return {"message": "All tips in today's category have been posted"}
     
-    
+    # Randomly select one
+    selected_id = random.choice(unposted_ids)
+    selected_tip = db.query(Tip).get(selected_id)
 
-    if not tip:
-        return {"message": "No tip found"}
+    # Add to post history 
+    post_entry = Post_History(
+        tip_id=selected_id,
+        posted_at=datetime.utcnow(),
+        platform="X",
+        post_id="",
+        engagement_count=0
+    )
+    db.add(post_entry)
+
+    #s Update Tip's Last_Posted timestampt
+    selected_tip.last_posted = datetime.utcnow()
+    db.commit()
+
     return {
-        "category_id": tip.category_id,
-        "title": tip.title,
-        "content": tip.content,
-        "code": tip.code_example,
-        "hashtags": tip.hashtags,
-        "created_at": tip.created_at,
-        "last_posted": tip.last_posted
+        "category_id": selected_tip.category_id,
+        "title": selected_tip.title,
+        "content": selected_tip.content,
+        "code": selected_tip.code_example,
+        "hashtags": selected_tip.hashtags,
+        "created_at": selected_tip.created_at,
+        "last_posted": selected_tip.last_posted
     }
 
 @app.post("/API/add_new_tip", response_model=TipResponse)
