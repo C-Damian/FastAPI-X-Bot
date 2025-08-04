@@ -8,6 +8,7 @@ A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Currently
 - **FastAPI** - Modern, fast web framework for building APIs
 - **SQLAlchemy** - SQL toolkit and ORM for database operations
 - **PostgreSQL** - Robust relational database
+- **Scheduled tip selection logic** - Automatically picks one unposted tip per day from a rotating category
 - **Pydantic** - Data validation using Python type annotations
 
 **Future Integrations:**
@@ -18,6 +19,7 @@ A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Currently
 
 - **CRUD Operations** for tech tips
 - **Random tip generation** for daily posts
+- **Rotating category-based tip selection** with logic to avoid reposting the same tip
 - **Database management** with PostgreSQL
 - **RESTful API** with automatic documentation
 
@@ -78,7 +80,7 @@ A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Currently
 The bot uses a PostgreSQL database with the following main tables:
 - **categories** - Tech tip categories (Python, JavaScript, DevOps, etc.)
 - **tips** - Individual tech tips with content and metadata
-- **post_history** - Tracking of posted tips (for future use)
+- **post_history** - Tracks which tips have been posted, including timestamp, platform, and engagement metrics; used to ensure unique daily tips
 
 ## 🔮 Future Roadmap
 
