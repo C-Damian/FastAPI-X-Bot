@@ -1,6 +1,6 @@
 # FastAPI X Bot 🤖
 
-A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Currently in development with plans to integrate Hugging Face for AI-generated content and Tweepy for social media automation.
+A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Features AI-powered tip generation using Google's Gemini API and automatic tip replenishment to maintain a fresh content pipeline.
 
 ## 🚀 Tech Stack
 
@@ -11,14 +11,16 @@ A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Currently
 - **Scheduled tip selection logic** - Automatically picks one unposted tip per day from a rotating category
 - **Pydantic** - Data validation using Python type annotations
 
-**Future Integrations:**
-- **Hugging Face** - AI model integration for content generation
-- **Tweepy** - Twitter/X API wrapper for automated posting
+**AI & Automation:**
+- **Google Gemini API** - AI-powered tech tip generation
+- **Automatic tip replenishment** - Self-sustaining content pipeline
+- **Tweepy** - Twitter/X API wrapper for automated posting (planned)
 
 ## 🛠️ Current Features
 
 - **CRUD Operations** for tech tips
-- **Random tip generation** for daily posts
+- **AI-powered tip generation** using Google Gemini API
+- **Automatic tip replenishment** - generates new tips when existing ones are used
 - **Rotating category-based tip selection** with logic to avoid reposting the same tip
 - **Database management** with PostgreSQL
 - **RESTful API** with automatic documentation
@@ -59,18 +61,24 @@ A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Currently
    pip install -r requirements.txt
    ```
 
-4. **Set up database**
+4. **Set up environment variables**
+   ```bash
+   # Create .env file in root directory
+   GEMINI_KEY=your_gemini_api_key_here
+   ```
+
+5. **Set up database**
    ```bash
    python setup_db.py
    ```
 
-5. **Run the application**
+6. **Run the application**
    ```bash
    cd app
    uvicorn main:app --reload
    ```
 
-6. **Access the API**
+7. **Access the API**
    - API: http://localhost:8000
    - Interactive docs: http://localhost:8000/docs
    - Alternative docs: http://localhost:8000/redoc
@@ -84,9 +92,8 @@ The bot uses a PostgreSQL database with the following main tables:
 
 ## 🔮 Future Roadmap
 
-- [ ] **AI Integration** - Hugging Face models for generating tech tips
-- [ ] **Social Media Automation** - Tweepy integration for automated X posting
-- [ ] **Scheduling System** - Automated daily posting at optimal times
+- [ ] **Cron Job Integration** - Automated daily posting at optimal times
+- [ ] **Twitter/X Integration** - Tweepy integration for automated posting
 - [ ] **Analytics Dashboard** - Track engagement and performance
 - [ ] **Content Curation** - Smart filtering and quality control
 
