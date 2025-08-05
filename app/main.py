@@ -6,6 +6,32 @@ import random
 from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
+from generateTip import generate_tip
+
+def create_tip_internal(db: Session, category_id: int = None):
+    """
+    Internal function to create a new tip in the database.
+    If category_id is None, uses current day's category.
+    """
+    if category_id is None:
+        weekday = datetime.utcnow().weekday()
+        category_id = weekday + 1
+    
+    response = generate_tip(category_id)
+    
+    db_tip = Tip(
+        category_id=response['category_id'],
+        title=response['title'],
+        content=response['content'],
+        code_example=response['code_example'],
+        hashtags=response['hashtags'],
+        is_ai_generated=response['is_ai_generated'],
+        created_at=response['created_at']
+    )
+    db.add(db_tip)
+    db.commit()
+    db.refresh(db_tip)
+    return db_tip
 
 app = FastAPI()
 
@@ -18,6 +44,7 @@ class TipCreate(BaseModel):
     code_example: Optional[str] = None
     hashtags: Optional[str] = "#DailyTechTip #Coding"
     is_ai_generated: bool = False
+    created_at: datetime
 
 class TipResponse(BaseModel):
     id: int
@@ -81,9 +108,16 @@ def get_tip(db: Session = Depends(get_db)):
     )
     db.add(post_entry)
 
-    #s Update Tip's Last_Posted timestampt
+    # Update Tip's Last_Posted timestamp
     selected_tip.last_posted = datetime.utcnow()
     db.commit()
+
+    # Generate a new tip to replace the one we just used
+    try:
+        create_tip_internal(db, category_id)
+    except Exception as e:
+        # If generating new tip fails, don't break the main function
+        print(f"Failed to generate new tip: {str(e)}")
 
     return {
         "category_id": selected_tip.category_id,
@@ -99,17 +133,8 @@ def get_tip(db: Session = Depends(get_db)):
 def create_tip(tip: TipCreate, db: Session = Depends(get_db)):
     """Create a new tech tip"""
     try:
-        db_tip = Tip(
-            category_id=tip.category_id,
-            title=tip.title,
-            content=tip.content,
-            code_example=tip.code_example,
-            hashtags=tip.hashtags,
-            is_ai_generated=tip.is_ai_generated
-        )
-        db.add(db_tip)
-        db.commit()
-        db.refresh(db_tip)
+        # Use the internal function to create the tip
+        db_tip = create_tip_internal(db)
         return db_tip
     except Exception as e:
         db.rollback()
