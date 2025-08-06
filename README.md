@@ -14,13 +14,15 @@ A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Features 
 **AI & Automation:**
 - **Google Gemini API** - AI-powered tech tip generation
 - **Automatic tip replenishment** - Self-sustaining content pipeline
-- **Tweepy** - Twitter/X API wrapper for automated posting (planned)
+- **Twitter/X API Integration** - Direct API posting with automatic tweet formatting
+- **Cron Job Automation** - Scheduled daily posting without manual intervention
 
 ## 🛠️ Current Features
 
 - **CRUD Operations** for tech tips
 - **AI-powered tip generation** using Google Gemini API
 - **Automatic tip replenishment** - generates new tips when existing ones are used
+- **Twitter/X posting** - automatic posting with proper tweet formatting
 - **Rotating category-based tip selection** with logic to avoid reposting the same tip
 - **Database management** with PostgreSQL
 - **RESTful API** with automatic documentation
@@ -65,6 +67,8 @@ A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Features 
    ```bash
    # Create .env file in root directory
    GEMINI_KEY=your_gemini_api_key_here
+   TWITTER_AUTH_HEADER=your_twitter_auth_header
+   TWITTER_COOKIE=your_twitter_cookie
    ```
 
 5. **Set up database**
@@ -92,10 +96,9 @@ The bot uses a PostgreSQL database with the following main tables:
 
 ## 🔮 Future Roadmap
 
-- [ ] **Cron Job Integration** - Automated daily posting at optimal times
-- [ ] **Twitter/X Integration** - Tweepy integration for automated posting
 - [ ] **Analytics Dashboard** - Track engagement and performance
 - [ ] **Content Curation** - Smart filtering and quality control
+- [ ] **Enhanced Error Handling** - More robust error management
 
 ## 🤝 Contributing
 
