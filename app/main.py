@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 from generateTip import generate_tip
-from postTweet import post_tweet
+from createTweet import post_tweet
 
 def get_current_category_id():
     """Get the category ID for the current day of the week"""
@@ -236,3 +236,7 @@ def get_all_tips(db: Session = Depends(get_db)):
     tips = db.query(Tip).all()
     return tips
 
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

@@ -13,7 +13,6 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 from main import get_tip_for_posting
 from db import get_db
-from postTweet import post_tweet_to_twitter
 
 def daily_posting_routine():
     """
@@ -24,38 +23,31 @@ def daily_posting_routine():
     try:
         # Get database session
         db = next(get_db())
-        
-        # Get a tip for posting (this includes marking it as posted and generating a new one)
+
+        # This function already posts to Twitter and updates the DB
         tip_data = get_tip_for_posting(db)
-        
+
         if not tip_data:
             print("No tips available for posting today")
             return
-        
-        # Format the tweet content
-        tweet_content = f"{tip_data['title']}\n\n{tip_data['content']}"
-        
-        if tip_data['code']:
-            tweet_content += f"\n\n{tip_data['code']}"
-        
-        tweet_content += f"\n\n{tip_data['hashtags']}"
-        
-        print(f"Preparing to post: {tweet_content[:100]}...")
-        
-        # Post to Twitter
-        success, tweet_id = post_tweet_to_twitter(tweet_content)
-        
-        if success:
-            print(f"Successfully posted tip to Twitter! Tweet ID: {tweet_id}")
-            print(f"Tip category: {tip_data['category_id']}")
+
+        # Log the outcome (avoid re-posting here)
+        if tip_data.get("tweet_posted"):
+            print(
+                f"Successfully posted. Tweet ID: {tip_data.get('tweet_id')}, "
+                f"Category: {tip_data.get('category_id')}"
+            )
         else:
-            print("Failed to post to Twitter")
-            
+            print("Tweeting was attempted but reported as not posted.")
+
     except Exception as e:
         print(f"Error in daily posting routine: {str(e)}")
     finally:
-        db.close()
-        print(f"Daily posting routine completed at {datetime.utcnow()}")
+        try:
+            if 'db' in locals() and db is not None:
+                db.close()
+        finally:
+            print(f"Daily posting routine completed at {datetime.utcnow()}")
 
 if __name__ == "__main__":
     # This allows the script to be run directly
