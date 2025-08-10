@@ -9,7 +9,7 @@ The main endpoint `get_random_tip` handles the entire automation flow:
 ```mermaid
 graph TD
     A[Daily Trigger] --> B[get_random_tip Endpoint]
-    B --> C{Check for Unposted Tips on Today's Category}
+    B --> C{Check for Unposted Tips in Today's Category}
     C -->|Yes| D[Select Tip for Post]
     C -->|Automatically Replenish Tip, 1 out 1 in| E[Call Gemini API]
     E --> F[Generate New Tip for Today's Category]
