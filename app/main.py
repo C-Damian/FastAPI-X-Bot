@@ -8,6 +8,7 @@ from typing import Optional
 from datetime import datetime
 from generateTip import generate_tip
 from createTweet import post_tweet
+import os
 
 def get_current_category_id():
     """Get the category ID for the current day of the week"""

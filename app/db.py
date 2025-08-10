@@ -1,8 +1,12 @@
 from fastapi import Depends
 from sqlalchemy import create_engine, Column, Integer, String, Text, Boolean, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import sessionmaker, declarative_base, Session, relationship
+import os
+from dotenv import load_dotenv
 
-DB_URL = "postgresql://damian:postgresql@localhost:5432/tech_tip_bot"
+load_dotenv()
+
+DB_URL = os.getenv('DATABASE_URL')
 
 engine = create_engine(DB_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
