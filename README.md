@@ -11,7 +11,7 @@ graph TD
     A[Daily Trigger] --> B[get_random_tip Endpoint]
     B --> C{Tips Available?}
     C -->|Yes| D[Select Random Tip]
-    C -->|Low Supply| E[Call Gemini API]
+    C -->|Automatically Replenish Used Tip| E[Call Gemini API]
     E --> F[Generate New Tip]
     F --> G[Store in Database]
     G --> D
