@@ -28,8 +28,7 @@ def generate_tip(category_id: int = 1) -> dict:
         4: "Git",
         5: "Performance",
         6: "Security",
-        7: "Debugging",
-        8: "APIs"
+        7: "APIs"
     }
     
     category = categories.get(category_id, "Python")
