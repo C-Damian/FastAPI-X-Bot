@@ -1,43 +1,58 @@
 # FastAPI X Bot 🤖
 
-A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Features AI-powered tip generation using Google's Gemini API and automatic tip replenishment to maintain a fresh content pipeline.
+An automated Twitter/X bot that posts daily tech tips using FastAPI and AI. Deployed on Render with automatic content generation and posting via Google's Gemini API and Tweepy.
 
-## 🚀 Tech Stack
+## How It Works
+
+The main endpoint `get_random_tip` handles the entire automation flow:
+
+```mermaid
+graph TD
+    A[Daily Trigger] --> B[get_random_tip Endpoint]
+    B --> C{Tips Available?}
+    C -->|Yes| D[Select Random Tip]
+    C -->|Low Supply| E[Call Gemini API]
+    E --> F[Generate New Tip]
+    F --> G[Store in Database]
+    G --> D
+    D --> H[Post to X via Tweepy]
+    H --> I[Mark as Posted]
+    I --> J[Update Post History]
+```
+
+## Tech Stack
 
 **Backend:**
-- **FastAPI** - Modern, fast web framework for building APIs
-- **SQLAlchemy** - SQL toolkit and ORM for database operations
-- **PostgreSQL** - Robust relational database
-- **Scheduled tip selection logic** - Automatically picks one unposted tip per day from a rotating category
-- **Pydantic** - Data validation using Python type annotations
+- **FastAPI** - Web framework and API
+- **SQLAlchemy** - Database ORM
+- **PostgreSQL** - Database
+- **Pydantic** - Data validation
 
 **AI & Automation:**
-- **Google Gemini API** - AI-powered tech tip generation
-- **Automatic tip replenishment** - Self-sustaining content pipeline
-- **Twitter/X API Integration** - Direct API posting with automatic tweet formatting
-- **Cron Job Automation** - Scheduled daily posting without manual intervention
+- **Google Gemini API** - AI tip generation
+- **Tweepy** - Twitter/X API integration
+- **Render** - Cloud deployment
+- **Cron jobs** - Scheduled posting
 
-## 🛠️ Current Features
+## Features
 
-- **CRUD Operations** for tech tips
-- **AI-powered tip generation** using Google Gemini API
-- **Automatic tip replenishment** - generates new tips when existing ones are used
-- **Twitter/X posting** - automatic posting with proper tweet formatting
-- **Rotating category-based tip selection** with logic to avoid reposting the same tip
-- **Database management** with PostgreSQL
-- **RESTful API** with automatic documentation
+- **Automated posting** - Daily tech tips without manual intervention
+- **AI content generation** - New tips created when supply runs low
+- **Duplicate prevention** - Tracks posted tips to avoid repeats
+- **Category rotation** - Ensures diverse content across tech topics
+- **Self-sustaining pipeline** - Maintains content supply automatically
 
-## 📋 API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | `GET` | `/` | Health check |
-| `GET` | `/API/get_random_tip` | Get a random tech tip |
+| `GET` | `/API/get_random_tip` | **Main automation endpoint** - selects tip, generates new content if needed, posts to X |
 | `GET` | `/API/get_all_tips` | Get all tech tips |
-| `POST` | `/API/add_new_tip` | Create a new tech tip |
-| `DELETE` | `/API/delete_tips/{tip_id}` | Delete a tip by ID |
+| `POST` | `/API/add_new_tip` | Create a new tech tip | Generate Tips on Demand
+| `DELETE` | `/API/delete_tips/{tip_id}` | Delete a tip by ID | If ever needed
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Python 3.8+
@@ -46,65 +61,49 @@ A smart Twitter/X bot that posts daily tech tips using FastAPI and AI. Features 
 
 ### Setup
 
-1. **Clone the repository**
+1. **Clone and setup environment**
    ```bash
    git clone <your-repo-url>
    cd FastAPI-X-Bot
-   ```
-
-2. **Create virtual environment**
-   ```bash
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**
-   ```bash
+   source venv/bin/activate  # Windows: venv\Scripts\activate
    pip install -r requirements.txt
    ```
 
-4. **Set up environment variables**
+2. **Environment variables (.env file)**
    ```bash
-   # Create .env file in root directory
    GEMINI_KEY=your_gemini_api_key_here
    TWITTER_AUTH_HEADER=your_twitter_auth_header
    TWITTER_COOKIE=your_twitter_cookie
+   DATABASE_URL=your_postgresql_url
    ```
 
-5. **Set up database**
+3. **Initialize database and run**
    ```bash
    python setup_db.py
-   ```
-
-6. **Run the application**
-   ```bash
    cd app
    uvicorn main:app --reload
    ```
 
-7. **Access the API**
+4. **Access API**
    - API: http://localhost:8000
-   - Interactive docs: http://localhost:8000/docs
-   - Alternative docs: http://localhost:8000/redoc
+   - Docs: http://localhost:8000/docs
 
-## 📊 Database Schema
+## Database Schema
 
-The bot uses a PostgreSQL database with the following main tables:
-- **categories** - Tech tip categories (Python, JavaScript, DevOps, etc.)
-- **tips** - Individual tech tips with content and metadata
-- **post_history** - Tracks which tips have been posted, including timestamp, platform, and engagement metrics; used to ensure unique daily tips
+- **`categories`** - Tech tip categories (Python, JavaScript, DevOps, etc.)
+- **`tips`** - Individual tech tips with content and metadata
+- **`posted_tips`** - Posting history and duplicate prevention
 
-## 🔮 Future Roadmap
+## Deployment
 
-- [ ] **Analytics Dashboard** - Track engagement and performance
-- [ ] **Content Curation** - Smart filtering and quality control
-- [ ] **Enhanced Error Handling** - More robust error management
+Currently deployed on **Render** with automatic daily posting enabled.
 
-## 🤝 Contributing
+## Contributing
+This is a personal portfolio project, but if you'd like you can:
 
-This project is in active development. Feel free to contribute by:
-- Reporting bugs
-- Suggesting new features
-- Submitting pull requests
+- Report bugs or suggest features
+- Submit pull requests
+- Help improve documentation
 
 ---
