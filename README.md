@@ -4,7 +4,11 @@ An automated Twitter/X bot that posts daily tech tips using FastAPI and AI. Depl
 
 ## How It Works
 
-The main endpoint `get_random_tip` handles the entire automation flow:
+The main endpoint `get_random_tip` handles the entire automation flow, when it is called, it looks at today's date and selects a category, every day of the week is assigned a category and this is then used to select a category from the categories table based on its id. 
+
+Once a **category** is selected, it is then used as an argument for both our **Gemini** prompt, and our tip selection logic. We look at the tips table to tips in today's category that has not been posted and extract them. 
+
+A tip is randomly selected, passed onto **Twitter** using Tweepy, and then marked as posted. At the same time, a new tip for the same category is generated and added to our tips table to ensure we always have a available tips:
 
 ```mermaid
 graph TD
@@ -97,7 +101,7 @@ graph TD
 
 ## Deployment
 
-Currently deployed on **Render** with automatic daily posting enabled.
+Currently deployed on **Render**, and a cron-job every day to trigger the get_random_tip endpoint. 
 
 ## Contributing
 This is a personal portfolio project, but if you'd like you can:
