@@ -50,7 +50,7 @@ graph TD
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `GET` | `/` | Health check |
+| `GET` | `/ping` | Health check |
 | `GET` | `/API/get_random_tip` | **Main automation endpoint** - selects tip, generates new content if needed, posts to X |
 | `GET` | `/API/get_all_tips` | Get all tech tips |
 | `POST` | `/API/add_new_tip` | Create a new tech tip | Generate Tips on Demand

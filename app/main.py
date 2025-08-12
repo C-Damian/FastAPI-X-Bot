@@ -192,10 +192,10 @@ class HealthCheckResponse(BaseModel):
     message: str
 
 
-@app.get("/", response_model=HealthCheckResponse)
+@app.get("/ping", response_model=HealthCheckResponse)
 def health_check():
     try: 
-        return HealthCheckResponse(status=200, message="Hey there, I'm up and running!")
+        return HealthCheckResponse(status=200, message="Pong, I'm up and running!")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
