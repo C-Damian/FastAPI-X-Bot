@@ -51,7 +51,7 @@ def mark_tip_as_posted(db: Session, tip_id: int, tweet_id: str = ""):
     # Add to post history 
     post_entry = Post_History(
         tip_id=tip_id,
-        posted_at=datetime.utcnow(),
+        posted_at=datetime.now(timezone.utc),
         platform="X",
         post_id=tweet_id,
         engagement_count=0
@@ -60,7 +60,7 @@ def mark_tip_as_posted(db: Session, tip_id: int, tweet_id: str = ""):
 
     # Update Tip's Last_Posted timestamp
     tip = db.query(Tip).get(tip_id)
-    tip.last_posted = datetime.utcnow()
+    tip.last_posted = datetime.now(timezone.utc)
     db.commit()
 
 def create_tip_internal(db: Session, category_id: int = None):
