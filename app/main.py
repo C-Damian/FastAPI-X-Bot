@@ -5,21 +5,18 @@ from sqlalchemy import func
 import random
 from pydantic import BaseModel
 from typing import Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from generateTip import generate_tip
 from createTweet import post_tweet
 import os
 
 def get_current_category_id():
     """Get the category ID for the current day of the week"""
-    weekday = datetime.utcnow().weekday()
+    weekday = datetime.now(timezone.utc).weekday()
     return weekday + 1
 
 def get_unposted_tips_for_category(db: Session, category_id: int):
-    """
-    Get all unposted tips for a specific category.
-    Returns list of Tip objects or None if no tips available.
-    """
+   
     # Getting all tip IDs with today category
     tip_ids = db.query(Tip.id).filter(Tip.category_id == category_id).all()
     tip_ids = [t[0] for t in tip_ids]

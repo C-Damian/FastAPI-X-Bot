@@ -9,7 +9,6 @@ load_dotenv()
 DB_URL = os.getenv('DATABASE_URL')
 
 engine = create_engine(DB_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
 
@@ -54,8 +53,12 @@ class Post_History(Base):
     # Relationship
     tip = relationship("Tip", back_populates="post_history")
 
+
+Session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base.metadata.create_all(engine)
+
 def get_db():
-    db = SessionLocal()
+    db = Session()
     try:
         yield db
     finally:

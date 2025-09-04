@@ -1,7 +1,7 @@
 import requests
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 from dotenv import load_dotenv
 
@@ -94,7 +94,7 @@ def generate_tip(category_id: int = 1) -> dict:
             "code_example": tip_data.get("code"),
             "hashtags": tip_data["hashtags"],
             "is_ai_generated": True,
-            "created_at": datetime.utcnow()
+            "created_at": datetime.now(timezone.utc)
         }
         
     except Exception as e:
@@ -106,6 +106,5 @@ def generate_tip(category_id: int = 1) -> dict:
             "code_example": None,
             "hashtags": "#DailyTechTip #Coding",
             "is_ai_generated": True,
-            "created_at": datetime.utcnow()
-        } 
-    
+            "created_at": datetime.now(timezone.utc)
+        }
