@@ -17,8 +17,8 @@ def get_current_category_id():
 
 def get_unposted_tips_for_category(db: Session, category_id: int):
    
-    # Getting all tip IDs with today category
-    tip_ids = db.query(Tip.id).filter(Tip.category_id == category_id).all()
+    # MAY NOT NEED THIS, DAILY TIP WILL JUST BE GENERATED AT REQUEST TIME 
+    tip_ids = db.query(Tip.id)
     tip_ids = [t[0] for t in tip_ids]
 
     if not tip_ids:
@@ -38,17 +38,14 @@ def get_unposted_tips_for_category(db: Session, category_id: int):
     return unposted_tips
 
 def select_random_tip(tips):
-    """Select a random tip from a list of tips"""
+    # Select a random tip from a list of tips
     if not tips:
         return None
     return random.choice(tips)
 
 def mark_tip_as_posted(db: Session, tip_id: int, tweet_id: str = ""):
-    """
-    Mark a tip as posted in the database.
-    Creates post history entry and updates tip's last_posted timestamp.
-    """
-    # Add to post history 
+    # Mark a tip as posted in the database.
+
     post_entry = Post_History(
         tip_id=tip_id,
         posted_at=datetime.now(timezone.utc),
@@ -63,11 +60,9 @@ def mark_tip_as_posted(db: Session, tip_id: int, tweet_id: str = ""):
     tip.last_posted = datetime.now(timezone.utc)
     db.commit()
 
-def create_tip_internal(db: Session, category_id: int = None):
-    """
-    Internal function to create a new tip in the database.
-    If category_id is None, uses current day's category.
-    """
+def generate_daily_tip(db: Session, category_id: int = None):
+    # Create a new tip in the database.
+
     if category_id is None:
         category_id = get_current_category_id()
     
@@ -87,21 +82,23 @@ def create_tip_internal(db: Session, category_id: int = None):
     db.refresh(db_tip)
     return db_tip
 
-def get_tip_for_posting(db: Session):
-    """
-    Get a tip for posting, post it to Twitter, and mark it as posted.
-    Returns the tip data as a dictionary or None if no tips available.
-    """
+def daily_tip_posting(db: Session):
+    # Get today's category, generate a tip with Gemini API, post it to twitter, mark it as posted.
+
     category_id = get_current_category_id()
+
+    try:
+        generate_daily_tip(db, category_id)
+    except Exception as e:
+        print(f"Failed to generate new tip: {str(e)}")
     
-    # Get unposted tips for today's category
     unposted_tips = get_unposted_tips_for_category(db, category_id)
     
     if not unposted_tips:
         return None
     
     # Select a random tip
-    selected_tip = select_random_tip(unposted_tips)
+    selected_tip = unposted_tips[0]
     
     # Format tweet content: title<br>content<br>code<br>hashtags
     tweet_content = selected_tip.title
@@ -120,13 +117,7 @@ def get_tip_for_posting(db: Session):
     
     # Mark it as posted (include the tweet_id if successful)
     mark_tip_as_posted(db, selected_tip.id, tweet_id if success else "")
-    
-    # Generate a new tip to replace the one we just used
-    try:
-        create_tip_internal(db, category_id)
-    except Exception as e:
-        print(f"Failed to generate new tip: {str(e)}")
-    
+
     # Return tip data as dictionary
     return {
         "category_id": selected_tip.category_id,
@@ -141,10 +132,8 @@ def get_tip_for_posting(db: Session):
     }
 
 def delete_tip_internal(db: Session, tip_id: int):
-    """
-    Internal function to delete a tip by ID.
-    Returns True if successful, False if tip not found.
-    """
+    # Internal function to delete a tip by ID.
+
     tip = db.query(Tip).filter(Tip.id == tip_id).first()
     if not tip:
         return False
@@ -196,11 +185,11 @@ def health_check():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
-@app.get("/API/get_random_tip")
+@app.get("/API/post_tip")
 def get_tip(db: Session = Depends(get_db)):
     """Get a random tip for posting"""
-    tip_data = get_tip_for_posting(db)
-    
+    tip_data = daily_tip_posting(db)
+
     if not tip_data:
         return {"message": "No tips available for posting today"}
     
@@ -211,7 +200,7 @@ def create_tip(tip: TipCreate, db: Session = Depends(get_db)):
     """Create a new tech tip"""
     try:
         # Use the internal function to create the tip
-        db_tip = create_tip_internal(db)
+        db_tip = generate_daily_tip(db)
         return db_tip
     except Exception as e:
         db.rollback()
