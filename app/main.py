@@ -8,16 +8,17 @@ from typing import Optional
 from datetime import datetime, timezone
 from generateTip import generate_tip
 from createTweet import post_tweet
+from magnum import Magnum
 import os
 
 def get_current_category_id():
-    """Get the category ID for the current day of the week"""
+   # Get the category ID for the current day of the week
     weekday = datetime.now(timezone.utc).weekday()
     return weekday + 1
 
 def get_unposted_tips_for_category(db: Session, category_id: int):
    
-    # MAY NOT NEED THIS, DAILY TIP WILL JUST BE GENERATED AT REQUEST TIME 
+    # Gets the unposted tip for a given category
     tip_ids = db.query(Tip.id)
     tip_ids = [t[0] for t in tip_ids]
 
@@ -227,3 +228,5 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+
+handler = Magnum(app)
